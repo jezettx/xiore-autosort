@@ -1,4 +1,4 @@
-// FILE: app/login/page.tsx
+// FILE: app/(auth)/login/page.tsx
 import LoginForm from "@/app/components/forms/LoginForm";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";

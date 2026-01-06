@@ -1,4 +1,4 @@
-// app/input/page.tsx
+// FILE: app/(app)/input/page.tsx
 import InputForm from "@/app/components/forms/InputForm";
 import PageShell from "@/app/components/layout/PageShell";
 import { getSession } from "@/lib/session";

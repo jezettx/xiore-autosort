@@ -40,181 +40,83 @@ export default function LoginForm() {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #0a1628 0%, #1a2942 100%)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif",
-    }}>
-      <div style={{
-        width: "100%",
-        maxWidth: "420px",
-        padding: "40px",
-        background: "rgba(15, 30, 50, 0.8)",
-        backdropFilter: "blur(10px)",
-        borderRadius: "12px",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
-        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-      }}>
-        <div style={{ marginBottom: "32px", textAlign: "center" }}>
-          <h1 style={{
-            fontSize: "28px",
-            fontWeight: "700",
-            color: "#ffffff",
-            margin: "0 0 8px 0",
-            letterSpacing: "-0.5px",
-          }}>
-            XIORE
-          </h1>
-          <p style={{
-            fontSize: "14px",
-            color: "rgba(255, 255, 255, 0.6)",
-            margin: "0",
-          }}>
-            Sign in to your account
-          </p>
-        </div>
-
-        {message && (
-          <div style={{
-            marginBottom: "20px",
-            padding: "12px 16px",
-            borderRadius: "8px",
-            fontSize: "14px",
-            backgroundColor: message.type === "success"
-              ? "rgba(76, 175, 80, 0.1)"
-              : "rgba(244, 67, 54, 0.1)",
-            color: message.type === "success"
-              ? "#4CAF50"
-              : "#F44336",
-            border: `1px solid ${message.type === "success" ? "rgba(76, 175, 80, 0.3)" : "rgba(244, 67, 54, 0.3)"}`,
-          }}>
-            {message.text}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{
-              display: "block",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: "rgba(255, 255, 255, 0.8)",
-              marginBottom: "8px",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
-            }}>
-              Username
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              disabled={loading}
-              placeholder="Enter your username"
-              style={{
-                width: "100%",
-                padding: "12px 14px",
-                fontSize: "14px",
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                borderRadius: "8px",
-                color: "#ffffff",
-                boxSizing: "border-box",
-                transition: "all 0.3s ease",
-                outline: "none",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.08)";
-                e.currentTarget.style.borderColor = "rgba(100, 150, 255, 0.4)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
-                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.15)";
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "28px" }}>
-            <label style={{
-              display: "block",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: "rgba(255, 255, 255, 0.8)",
-              marginBottom: "8px",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
-            }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-              placeholder="Enter your password"
-              style={{
-                width: "100%",
-                padding: "12px 14px",
-                fontSize: "14px",
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                borderRadius: "8px",
-                color: "#ffffff",
-                boxSizing: "border-box",
-                transition: "all 0.3s ease",
-                outline: "none",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.08)";
-                e.currentTarget.style.borderColor = "rgba(100, 150, 255, 0.4)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
-                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.15)";
-              }}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || !username || !password}
-            style={{
-              width: "100%",
-              padding: "12px 16px",
-              fontSize: "14px",
-              fontWeight: "600",
-              color: "#ffffff",
-              backgroundColor: loading || !username || !password
-                ? "rgba(100, 150, 255, 0.4)"
-                : "linear-gradient(135deg, #6496FF 0%, #4A7FFF 100%)",
-              border: "none",
-              borderRadius: "8px",
-              cursor: loading || !username || !password ? "not-allowed" : "pointer",
-              transition: "all 0.3s ease",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
-              boxShadow: loading || !username || !password
-                ? "none"
-                : "0 4px 15px rgba(100, 150, 255, 0.3)",
-            }}
-            onMouseEnter={(e) => {
-              if (!loading && username && password) {
-                e.currentTarget.style.boxShadow = "0 6px 20px rgba(100, 150, 255, 0.4)";
-                e.currentTarget.style.transform = "translateY(-2px)";
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = "0 4px 15px rgba(100, 150, 255, 0.3)";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
+    <main className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
+      {/* soft background glow */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-40 left-1/2 h-105 w-105 -translate-x-1/2 rounded-full bg-blue-500/15 blur-3xl" />
+        <div className="absolute -bottom-40 left-10 h-90 w-90 rounded-full bg-fuchsia-500/10 blur-3xl" />
       </div>
-    </div>
+
+      <div className="relative mx-auto flex min-h-screen w-full max-w-md items-center px-6 py-12">
+        <section className="w-full rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-8 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] backdrop-blur">
+          <header className="mb-8 text-center">
+            <h1 className="text-3xl font-bold tracking-tight text-zinc-100">
+              XIORE
+            </h1>
+            <p className="mt-2 text-sm text-zinc-400">
+              Sign in to your account
+            </p>
+          </header>
+
+          {message && (
+            <div
+              className={`mb-5 rounded-lg border px-4 py-3 text-sm ${
+                message.type === "success"
+                  ? "border-green-500/30 bg-green-500/10 text-green-400"
+                  : "border-red-500/30 bg-red-500/10 text-red-400"
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label
+                htmlFor="username"
+                className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-300"
+              >
+                Username
+              </label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={loading}
+                placeholder="Enter your username"
+                className="w-full rounded-xl border border-zinc-800/80 bg-zinc-950/60 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 transition focus:border-blue-500/40 focus:bg-zinc-900/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-300"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+                placeholder="Enter your password"
+                className="w-full rounded-xl border border-zinc-800/80 bg-zinc-950/60 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 transition focus:border-blue-500/40 focus:bg-zinc-900/60 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !username || !password}
+              className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-500 hover:shadow-blue-500/30 active:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-600/40 disabled:shadow-none"
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
+        </section>
+      </div>
+    </main>
   );
 }
