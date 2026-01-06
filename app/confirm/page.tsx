@@ -1,5 +1,5 @@
-import ConfirmForm from "@/app/components/ConfirmForm";
-import PageShell from "@/app/components/PageShell";
+import ConfirmForm from "@/app/components/forms/ConfirmForm";
+import PageShell from "@/app/components/layout/PageShell";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 

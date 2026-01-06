@@ -1,7 +1,7 @@
 // FILE: app/menu/page.tsx
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-import MenuLinks from "@/app/components/MenuLinks";
+import MenuLinks from "@/app/components/layout/MenuLinks";
 
 export default async function MenuPage() {
   const session = await getSession();

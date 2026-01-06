@@ -1,6 +1,6 @@
 // app/input/page.tsx
-import InputForm from "@/app/components/InputForm";
-import PageShell from "@/app/components/PageShell";
+import InputForm from "@/app/components/forms/InputForm";
+import PageShell from "@/app/components/layout/PageShell";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
