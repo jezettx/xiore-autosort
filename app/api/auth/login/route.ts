@@ -36,6 +36,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "invalid_credentials" }, { status: 401 });
   }
 
+  // Delay 700ms untuk UX loading state
+  await new Promise((resolve) => setTimeout(resolve, 700));
+
   const maxAge = 60 * 60 * 8; // 8 jam
   const session = createSessionValue(username, maxAge);
 

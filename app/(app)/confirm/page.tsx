@@ -1,6 +1,6 @@
 // FILE: app/(app)/confirm/page.tsx
-import ConfirmForm from "@/app/components/forms/ConfirmForm";
-import PageShell from "@/app/components/layout/PageShell";
+import ConfirmForm from "@/components/forms/ConfirmForm";
+import PageShell from "@/components/layout/PageShell";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 

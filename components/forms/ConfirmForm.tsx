@@ -1,6 +1,7 @@
+// components/forms/ConfirmForm.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Parsed = {
@@ -19,21 +20,15 @@ type Parsed = {
 export default function ConfirmForm() {
   const router = useRouter();
 
-  const [data, setData] = useState<Parsed | null>(null);
-
-  useEffect(() => {
+  const [data, setData] = useState<Parsed | null>(() => {
     const raw = sessionStorage.getItem("xiore_parsed");
-    if (!raw) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setData(null);
-      return;
-    }
+    if (!raw) return null;
     try {
-      setData(JSON.parse(raw));
+      return JSON.parse(raw);
     } catch {
-      setData(null);
+      return null;
     }
-  }, []);
+  });
 
   const missing = useMemo(() => {
     if (!data) return [];
@@ -53,7 +48,6 @@ export default function ConfirmForm() {
   const back = () => router.push("/input");
 
   const submit = async () => {
-    // integrasi save nanti. sekarang minimal guard.
     if (!data) return;
 
     if (missing.length) {
@@ -157,7 +151,7 @@ function Area(props: { label: string; value: string; onChange: (v: string) => vo
       <textarea
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
-        className="min-h-[92px] w-full rounded-xl border border-zinc-800/80 bg-zinc-950/50 p-4 text-sm text-zinc-100 outline-none focus:border-blue-500/50"
+        className="min-h-23 w-full rounded-xl border border-zinc-800/80 bg-zinc-950/50 p-4 text-sm text-zinc-100 outline-none focus:border-blue-500/50"
       />
     </label>
   );

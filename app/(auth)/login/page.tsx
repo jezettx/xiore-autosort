@@ -1,5 +1,6 @@
 // FILE: app/(auth)/login/page.tsx
-import LoginForm from "@/app/components/forms/LoginForm";
+import LoginForm from "@/components/forms/LoginForm";
+import PageShell from "@/components/layout/PageShell";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
@@ -10,5 +11,15 @@ export default async function LoginPage() {
     redirect("/menu");
   }
 
-  return <LoginForm />;
+  return (
+    <PageShell
+      title="XIORE"
+      subtitle="Sign in to your account"
+      maxWidth="sm"
+    >
+      <div className="w-80 max-w-full mx-auto">
+        <LoginForm />
+      </div>
+    </PageShell>
+  );
 }

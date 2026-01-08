@@ -1,4 +1,4 @@
-// app/components/PageShell.tsx
+// components/layout/PageShell.tsx
 "use client";
 
 import React from "react";
@@ -14,8 +14,8 @@ type PageShellProps = {
 };
 
 const widthMap = {
-  sm: "max-w-xl",
-  md: "max-w-2xl",
+  sm: "max-w-sm",
+  md: "max-w-2xl", 
   lg: "max-w-4xl",
 } as const;
 
