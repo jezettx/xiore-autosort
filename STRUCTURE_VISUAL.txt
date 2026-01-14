@@ -1,0 +1,113 @@
+📊 EXCEL ONLINE INTEGRATION - FINAL STRUCTURE
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📦 LIBRARY LAYER (Type-Safe Utilities)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                               │
+│  lib/excelContract.ts (170 lines, 0 any)                                     │
+│  ├─ interface ExcelRow [12 fields]                                            │
+│  ├─ interface BuildExcelRowInput                                              │
+│  ├─ function buildExcelRow(input) → ExcelRow                                 │
+│  ├─ function excelRowToValues(row) → (string|number)[]                       │
+│  ├─ function sanitizeString(value: unknown) → string                         │
+│  └─ function createEmptyExcelRow(no) → ExcelRow                              │
+│                                                                               │
+│  lib/errors.ts (25 lines, 0 any)                                             │
+│  ├─ function getErrorMessage(err: unknown) → string                          │
+│  └─ function toErrorObject(err: unknown) → {message: string}                 │
+│                                                                               │
+│  lib/http.ts (21 lines, 0 any)                                               │
+│  └─ async function safeJson<T>(req) → T | null                               │
+│                                                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+🌐 API ROUTES LAYER (Microsoft Graph Integration)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                               │
+│  POST /api/excel/send (350 lines)                                            │
+│  ├─ Validasi: token, shareUrl, payload                                       │
+│  ├─ Resolve: shareUrl → driveId + itemId                                    │
+│  ├─ Lookup: find table by name (tblRent2026)                                 │
+│  ├─ Execute: appendRowToTable(driveId, itemId, tableId, row, token)          │
+│  ├─ Error Handling: 401, 403, 400, 500                                       │
+│  └─ Response: {ok, message, data, error}                                     │
+│                                                                               │
+│  ┌──────────────────────────────────────────────────────────────────────┐    │
+│  │ Internal Helper Functions (Exported for test/route.ts):              │    │
+│  ├─ graphFetch(url, init) → {status, json}                             │    │
+│  ├─ encodeShareUrl(url) → base64url with "u!" prefix                   │    │
+│  ├─ resolveDriveItem(url, token) → {driveId, itemId}                   │    │
+│  ├─ findTable(driveId, itemId, name, token) → tableId                  │    │
+│  ├─ appendRowToTable(driveId, itemId, tableId, row, token) → void      │    │
+│  └─ appendRowsBatch(driveId, itemId, tableId, rows[], token) → void    │    │
+│  └──────────────────────────────────────────────────────────────────────┘    │
+│                                                                               │
+│  GET /api/excel/status (60 lines)                                            │
+│  ├─ Check: Boolean(token && shareUrl)                                        │
+│  └─ Response: {ok: true, data: {connected: boolean}}                         │
+│                                                                               │
+│  POST /api/excel/test (230 lines)                                            │
+│  ├─ Parse: {rowCount: 1-100}                                                 │
+│  ├─ Generate: dummy ExcelRow[] with test data                                │
+│  ├─ Execute: appendRowsBatch() [batch append]                                │
+│  └─ Response: {ok, message, data: {rowsAdded}}                               │
+│                                                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+⚙️ CONFIGURATION
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                               │
+│  .env.local                                                                   │
+│  ├─ MS_GRAPH_ACCESS_TOKEN     [manually from Graph Explorer for now]        │
+│  ├─ MS_EXCEL_SHARE_URL        [SharePoint/OneDrive share link]              │
+│  └─ MS_EXCEL_TABLE_NAME       [optional, default: tblRent2026]              │
+│                                                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+📈 DATA FLOW
+
+User Input → API Route → Validation
+                           ↓
+                    buildExcelRow()
+                           ↓
+                    excelRowToValues()
+                           ↓
+                    Microsoft Graph API
+                           ↓
+                    Excel Table (tblRent2026)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ QUALITY METRICS
+
+Code Quality:
+  ├─ ✅ 0 instances of `any` type
+  ├─ ✅ 0 unused variables (using _param convention)
+  ├─ ✅ All error handling typed
+  ├─ ✅ Safe JSON parsing
+  ├─ ✅ Proper response interfaces
+  └─ ✅ Unknown error handling
+
+Type Safety:
+  ├─ ✅ BuildExcelRowInput uses `unknown` for all optional fields
+  ├─ ✅ Graph responses properly typed
+  ├─ ✅ API responses follow uniform interface
+  └─ ✅ Error responses included in all paths
+
+API Completeness:
+  ├─ ✅ GET /api/excel/status       [connection check]
+  ├─ ✅ POST /api/excel/send        [single row append]
+  ├─ ✅ POST /api/excel/test        [batch test append]
+  └─ ✅ All error codes (400, 401, 403, 405, 500)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 READY TO USE
+
+1. Fill in .env.local with real credentials
+2. Test GET /api/excel/status first
+3. Send POST /api/excel/send with ExcelRow payload
+4. Test batch with POST /api/excel/test?rowCount=5
+
+═══════════════════════════════════════════════════════════════════════════════

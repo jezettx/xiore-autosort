@@ -1,4 +1,4 @@
-// FILE: app/components/MenuLinks.tsx
+// components/layout/MenuLinks.tsx
 "use client";
 
 import Link from "next/link";
@@ -43,4 +43,3 @@ export default function MenuLinks() {
     </div>
   );
 }
-// FILE: app/menu/page.tsx

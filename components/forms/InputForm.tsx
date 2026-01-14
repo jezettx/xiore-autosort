@@ -1,4 +1,4 @@
-// app/components/InputForm.tsx
+// components/forms/InputForm.tsx
 "use client";
 
 import { useRouter } from "next/navigation";

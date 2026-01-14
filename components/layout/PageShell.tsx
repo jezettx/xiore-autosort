@@ -1,4 +1,4 @@
-// app/components/PageShell.tsx
+// components/layout/PageShell.tsx
 "use client";
 
 import React from "react";
@@ -14,8 +14,8 @@ type PageShellProps = {
 };
 
 const widthMap = {
-  sm: "max-w-xl",
-  md: "max-w-2xl",
+  sm: "max-w-sm",
+  md: "max-w-2xl", 
   lg: "max-w-4xl",
 } as const;
 
@@ -45,11 +45,11 @@ export default function PageShell({
         <section
           className={`w-full ${widthMap[maxWidth]} mx-auto rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-7 backdrop-blur`}
         >
-          <header className="mb-6 flex items-start justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+          <header className={`mb-6 ${backHref ? 'flex items-start justify-between gap-3' : 'text-center'}`}>
+            <div className={backHref ? '' : 'w-full'}>
+              <h1 className={`font-semibold tracking-tight ${backHref ? 'text-2xl' : 'mt-1 text-3xl'}`}>{title}</h1>
               {subtitle ? (
-                <p className="mt-1 text-sm text-zinc-400">{subtitle}</p>
+                <p className={`text-sm text-zinc-400 ${backHref ? 'mt-1' : 'mt-2'}`}>{subtitle}</p>
               ) : null}
             </div>
 

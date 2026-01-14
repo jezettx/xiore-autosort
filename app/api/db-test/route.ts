@@ -20,9 +20,10 @@ export async function GET() {
     await client.connect();
     const r = await client.query("select 1 as ok");
     return NextResponse.json({ ok: true, result: r.rows[0] });
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e.message : String(e);
     return NextResponse.json(
-      { ok: false, error: e?.message ?? String(e) },
+      { ok: false, error },
       { status: 500 }
     );
   } finally {
