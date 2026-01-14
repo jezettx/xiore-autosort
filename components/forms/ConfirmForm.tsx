@@ -12,10 +12,32 @@ type Parsed = {
   kontak_b?: string;
   sosmed_user?: string;
   sosmed_teman?: string;
-  tanggal_pemakaian?: string;
+  tanggal_pemakaian?: string; // bisa "19-01-2026" dari UI
   pengiriman?: string;
   item_disewa?: string;
+  jenis_jaminan?: string;
+  catatan?: string;
+  status_rental?: string;
 };
+
+function normalizeDateToISO(input: string): string {
+  // kalau sudah ISO (YYYY-MM-DD) biarin
+  const iso = /^\d{4}-\d{2}-\d{2}$/;
+  if (iso.test(input)) return input;
+
+  // kalau format DD-MM-YYYY → ubah jadi YYYY-MM-DD
+  const dmy = /^(\d{2})-(\d{2})-(\d{4})$/;
+  const m = input.match(dmy);
+  if (m) {
+    const dd = m[1];
+    const mm = m[2];
+    const yyyy = m[3];
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  // fallback: kirim apa adanya (biar backend yang reject kalau invalid)
+  return input;
+}
 
 export default function ConfirmForm() {
   const router = useRouter();
@@ -30,10 +52,18 @@ export default function ConfirmForm() {
     }
   });
 
+  const [saving, setSaving] = useState(false);
+
   const missing = useMemo(() => {
     if (!data) return [];
-    const req: Array<keyof Parsed> = ["nama_lengkap", "no_wa", "tanggal_pemakaian", "item_disewa"];
-    return req.filter((k) => !data[k] || !String(data[k]).trim());
+
+    const m: string[] = [];
+    if (!data.nama_lengkap || !data.nama_lengkap.trim()) m.push("nama_lengkap");
+    if (!data.no_wa || !data.no_wa.trim()) m.push("no_wa");
+    if (!data.tanggal_pemakaian || !data.tanggal_pemakaian.trim()) m.push("tanggal_pemakaian");
+    if (!data.item_disewa || !data.item_disewa.trim()) m.push("item_disewa");
+
+    return m;
   }, [data]);
 
   const update = (key: keyof Parsed, value: string) => {
@@ -55,7 +85,55 @@ export default function ConfirmForm() {
       return;
     }
 
-    alert("OK. Next: integrasi save API.");
+    setSaving(true);
+    try {
+      const payload = {
+        raw_text: sessionStorage.getItem("xiore_raw") || "",
+        nama_lengkap: data.nama_lengkap?.trim() || "",
+        alamat: data.alamat_lengkap?.trim() || "",
+        no_wa: data.no_wa?.trim() || "",
+        no_wa_kontak_a: (data.kontak_a || "").trim(),
+        no_wa_kontak_b: (data.kontak_b || "").trim(),
+        sosmed_user: (data.sosmed_user || "").trim(),
+        sosmed_teman: (data.sosmed_teman || "").trim(),
+        tanggal_pemakaian: normalizeDateToISO((data.tanggal_pemakaian || "").trim()),
+        metode_pengiriman: (data.pengiriman || "").trim(),
+        item_disewa: (data.item_disewa || "").trim(),
+        jenis_jaminan: (data.jenis_jaminan || "").trim(),
+        catatan: (data.catatan || "").trim(),
+        status_rental: (data.status_rental || "booked").trim(),
+      };
+
+      const res = await fetch("/api/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result?.ok) {
+        alert("Gagal simpan: " + (result?.error || "unknown error"));
+        return;
+      }
+
+      // feedback minimal tapi jelas
+      const msg =
+        result.excelSyncStatus === "synced"
+          ? "✅ Saved to DB & Excel synced"
+          : result.excelSyncStatus === "failed"
+            ? "⚠️ Saved to DB, Excel failed (cek log / coba batch sync)"
+            : "⏳ Saved to DB, Excel pending";
+
+      alert(msg);
+
+      router.push("/menu");
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error network/server");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!data) {
@@ -64,11 +142,10 @@ export default function ConfirmForm() {
         Data belum ada. Balik ke input dulu.
         <div className="mt-3">
           <button
-            type="button"
             onClick={back}
-            className="rounded-xl border border-zinc-800/80 bg-zinc-950/60 px-4 py-2 text-sm hover:bg-zinc-900/60"
+            className="rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm hover:bg-zinc-900"
           >
-            Kembali ke Input
+            Kembali
           </button>
         </div>
       </div>
@@ -79,80 +156,82 @@ export default function ConfirmForm() {
     <div className="space-y-4">
       <div className="rounded-xl border border-blue-900/40 bg-blue-950/20 p-4 text-sm text-blue-100">
         Wajib diisi: <b>nama lengkap</b>, <b>no wa</b>, <b>tanggal pemakaian</b>, <b>item disewa</b>.
-        <br />
-        Kontak a/b opsional — kalau ada, isi aja.
         {missing.length ? (
-          <div className="mt-2 text-red-200">
-            ⚠️ Kosong: {missing.join(", ")}
-          </div>
+          <div className="mt-2 text-red-200">⚠️ Kosong: {missing.join(", ")}</div>
         ) : null}
       </div>
 
-      <div className="grid gap-4">
-        <Field label="NAMA LENGKAP *" value={data.nama_lengkap || ""} onChange={(v) => update("nama_lengkap", v)} />
-        <Area label="ALAMAT LENGKAP" value={data.alamat_lengkap || ""} onChange={(v) => update("alamat_lengkap", v)} />
-        <Field label="NO WA *" value={data.no_wa || ""} onChange={(v) => update("no_wa", v)} />
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field label="NO WA KONTAK (A)" value={data.kontak_a || ""} onChange={(v) => update("kontak_a", v)} />
-          <Field label="NO WA KONTAK (B)" value={data.kontak_b || ""} onChange={(v) => update("kontak_b", v)} />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field label="AKUN SOSMED (TIKTOK/IG/TWITTER)" value={data.sosmed_user || ""} onChange={(v) => update("sosmed_user", v)} />
-          <Field label="AKUN SOSMED TEMAN DEKAT" value={data.sosmed_teman || ""} onChange={(v) => update("sosmed_teman", v)} />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field label="TANGGAL PEMAKAIAN *" value={data.tanggal_pemakaian || ""} onChange={(v) => update("tanggal_pemakaian", v)} />
-          <Field label="PENGIRIMAN" value={data.pengiriman || ""} onChange={(v) => update("pengiriman", v)} />
-        </div>
-
-        <Area label="COSTUME/WIG/WEAPON YANG DISEWA *" value={data.item_disewa || ""} onChange={(v) => update("item_disewa", v)} />
+      {/* form fields ringkas (lanjutkan sesuai UI kamu, ini contoh minimal) */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Field label="Nama lengkap *" value={data.nama_lengkap || ""} onChange={(v) => update("nama_lengkap", v)} />
+        <Field label="No WA *" value={data.no_wa || ""} onChange={(v) => update("no_wa", v)} />
+        <Field label="No WA Kontak (A)" value={data.kontak_a || ""} onChange={(v) => update("kontak_a", v)} />
+        <Field label="No WA Kontak (B)" value={data.kontak_b || ""} onChange={(v) => update("kontak_b", v)} />
+        <Field label="Akun sosmed" value={data.sosmed_user || ""} onChange={(v) => update("sosmed_user", v)} />
+        <Field label="Akun sosmed temen" value={data.sosmed_teman || ""} onChange={(v) => update("sosmed_teman", v)} />
+        <Field
+          label="Tanggal pemakaian *"
+          value={data.tanggal_pemakaian || ""}
+          onChange={(v) => update("tanggal_pemakaian", v)}
+          hint="format: DD-MM-YYYY atau YYYY-MM-DD"
+        />
+        <Field label="Pengiriman" value={data.pengiriman || ""} onChange={(v) => update("pengiriman", v)} />
       </div>
 
-      <div className="mt-6 flex gap-3">
+      <div className="space-y-2">
+        <Label>Costume/Wig/Weapon yang disewa *</Label>
+        <textarea
+          value={data.item_disewa || ""}
+          onChange={(e) => update("item_disewa", e.target.value)}
+          className="h-24 w-full rounded-xl border border-zinc-800 bg-zinc-950/60 p-3 text-zinc-100 outline-none"
+        />
+      </div>
+
+      <div className="flex gap-3">
         <button
-          type="button"
           onClick={back}
-          className="w-1/2 rounded-xl border border-zinc-800/80 bg-zinc-950/60 px-4 py-3 text-sm text-zinc-200 hover:bg-zinc-900/60"
+          disabled={saving}
+          className="w-1/2 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-200 hover:bg-zinc-900 disabled:opacity-60"
         >
           Kembali
         </button>
+
         <button
-          type="button"
           onClick={submit}
-          className="w-1/2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500"
+          disabled={saving}
+          className="w-1/2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60"
         >
-          Kirim
+          {saving ? "Menyimpan..." : "Kirim"}
         </button>
       </div>
     </div>
   );
 }
 
-function Field(props: { label: string; value: string; onChange: (v: string) => void }) {
-  return (
-    <label className="block">
-      <div className="mb-1 text-xs font-semibold tracking-wide text-zinc-300">{props.label}</div>
-      <input
-        value={props.value}
-        onChange={(e) => props.onChange(e.target.value)}
-        className="w-full rounded-xl border border-zinc-800/80 bg-zinc-950/50 px-4 py-3 text-sm text-zinc-100 outline-none focus:border-blue-500/50"
-      />
-    </label>
-  );
+function Label({ children }: { children: React.ReactNode }) {
+  return <div className="text-xs font-semibold uppercase tracking-wide text-zinc-300">{children}</div>;
 }
 
-function Area(props: { label: string; value: string; onChange: (v: string) => void }) {
+function Field({
+  label,
+  value,
+  onChange,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  hint?: string;
+}) {
   return (
-    <label className="block">
-      <div className="mb-1 text-xs font-semibold tracking-wide text-zinc-300">{props.label}</div>
-      <textarea
-        value={props.value}
-        onChange={(e) => props.onChange(e.target.value)}
-        className="min-h-23 w-full rounded-xl border border-zinc-800/80 bg-zinc-950/50 p-4 text-sm text-zinc-100 outline-none focus:border-blue-500/50"
+    <div className="space-y-1">
+      <Label>{label}</Label>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-zinc-100 outline-none"
       />
-    </label>
+      {hint ? <div className="text-xs text-zinc-500">{hint}</div> : null}
+    </div>
   );
 }
